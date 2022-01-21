@@ -160,12 +160,12 @@ class MPUCommandHelper:
                           % (accel_x, accel_y, accel_z))
     cmd_ACCELEROMETER_DEBUG_READ_help = "Query mpu register (for debugging)"
     def cmd_ACCELEROMETER_DEBUG_READ(self, gcmd):
-        reg = gcmd.get("REG", minval=29, maxval=57, parser=lambda x: int(x, 0))
+        reg = gcmd.get("REG", minval=1, maxval=127, parser=lambda x: int(x, 0))
         val = self.chip.read_reg(reg)
         gcmd.respond_info("mpu REG[0x%x] = 0x%x" % (reg, val))
     cmd_ACCELEROMETER_DEBUG_WRITE_help = "Set mpu register (for debugging)"
     def cmd_ACCELEROMETER_DEBUG_WRITE(self, gcmd):
-        reg = gcmd.get("REG", minval=29, maxval=57, parser=lambda x: int(x, 0))
+        reg = gcmd.get("REG", minval=1, maxval=127, parser=lambda x: int(x, 0))
         val = gcmd.get("VAL", minval=0, maxval=255, parser=lambda x: int(x, 0))
         self.chip.set_reg(reg, val)
 

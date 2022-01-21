@@ -7,13 +7,14 @@ import logging, time, collections, threading, multiprocessing, struct, os
 from . import bus, motion_report
 
 
-MPU6500_DEV_ID = 0x70
+MPU6500_DEV_ID = 0x71
 
 #MPU-6500 registers
 REG_ACCEL_CONFIG = 28
 REG_ACCEL_CONFIG2 = 29
 REG_USER_CTRL = 106
 REG_WHOAMI = 117
+REG_MOD_READ = 0x80
 
 SET_FIFO_CTL = 0x90
 
@@ -267,15 +268,15 @@ class MPU6500:
                                  self._handle_dump_mpu6500)
     def _build_config(self):
         cmdqueue = self.spi.get_command_queue()
-        self.query_adxl345_cmd = self.mcu.lookup_command(
-            "query_adxl345 oid=%c clock=%u rest_ticks=%u", cq=cmdqueue)
-        self.query_adxl345_end_cmd = self.mcu.lookup_query_command(
-            "query_adxl345 oid=%c clock=%u rest_ticks=%u",
-            "adxl345_status oid=%c clock=%u query_ticks=%u next_sequence=%hu"
+        self.query_mpu6500_cmd = self.mcu.lookup_command(
+            "query_mpu6500 oid=%c clock=%u rest_ticks=%u", cq=cmdqueue)
+        self.query_mpu6500_end_cmd = self.mcu.lookup_query_command(
+            "query_mpu6500 oid=%c clock=%u rest_ticks=%u",
+            "mpu6500 _status oid=%c clock=%u query_ticks=%u next_sequence=%hu"
             " buffered=%c fifo=%c limit_count=%hu", oid=self.oid, cq=cmdqueue)
-        self.query_adxl345_status_cmd = self.mcu.lookup_query_command(
-            "query_adxl345_status oid=%c",
-            "adxl345_status oid=%c clock=%u query_ticks=%u next_sequence=%hu"
+        self.query_mpu6500_status_cmd = self.mcu.lookup_query_command(
+            "query_mpu6500_status oid=%c",
+            "mpu6500_status oid=%c clock=%u query_ticks=%u next_sequence=%hu"
             " buffered=%c fifo=%c limit_count=%hu", oid=self.oid, cq=cmdqueue)
     def read_reg(self, reg):
         params = self.spi.spi_transfer([reg | REG_MOD_READ, 0x00])

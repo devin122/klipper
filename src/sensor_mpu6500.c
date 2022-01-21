@@ -63,7 +63,7 @@ mpu_status(struct mpu6500 *ax, uint_fast8_t oid
             , uint32_t time1, uint32_t time2, uint16_t fifo)
 {
     sendf("mpu6500_status oid=%c clock=%u query_ticks=%u next_sequence=%hu"
-          " buffered=%c fifo=%c limit_count=%hu"
+          " buffered=%c fifo=%hu limit_count=%hu"
           , oid, time1, time2-time1, ax->sequence
           , ax->data_count, fifo, ax->limit_count);
 }

@@ -272,12 +272,12 @@ class MPU6500:
             "query_mpu6500 oid=%c clock=%u rest_ticks=%u", cq=cmdqueue)
         self.query_mpu6500_end_cmd = self.mcu.lookup_query_command(
             "query_mpu6500 oid=%c clock=%u rest_ticks=%u",
-            "mpu6500 _status oid=%c clock=%u query_ticks=%u next_sequence=%hu"
-            " buffered=%c fifo=%c limit_count=%hu", oid=self.oid, cq=cmdqueue)
+            "mpu6500_status oid=%c clock=%u query_ticks=%u next_sequence=%hu"
+            " buffered=%c fifo=%hu limit_count=%hu", oid=self.oid, cq=cmdqueue)
         self.query_mpu6500_status_cmd = self.mcu.lookup_query_command(
             "query_mpu6500_status oid=%c",
             "mpu6500_status oid=%c clock=%u query_ticks=%u next_sequence=%hu"
-            " buffered=%c fifo=%c limit_count=%hu", oid=self.oid, cq=cmdqueue)
+            " buffered=%c fifo=%hu limit_count=%hu", oid=self.oid, cq=cmdqueue)
     def read_reg(self, reg):
         params = self.spi.spi_transfer([reg | REG_MOD_READ, 0x00])
         response = bytearray(params['response'])

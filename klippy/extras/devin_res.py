@@ -143,9 +143,7 @@ class ResonanceTester2:
         self.printer.register_event_handler("klippy:connect", self.connect)
 
     def connect(self):
-        self.accel_chips = [
-                (chip_axis, self.printer.lookup_object(chip_name))
-                for chip_axis, chip_name in self.accel_chip_names]
+        self.accel_chips = []
 
     def _run_test(self, gcmd, axes, helper, raw_name_suffix=None):
         toolhead = self.printer.lookup_object('toolhead')

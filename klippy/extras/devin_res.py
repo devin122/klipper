@@ -120,24 +120,24 @@ class ResonanceTester2:
         self.printer = config.get_printer()
         self.move_speed = config.getfloat('move_speed', 50., above=0.)
         self.test = VibrationPulseTest2(config)
-        if not config.get('accel_chip_x', None):
-            self.accel_chip_names = [('xy', config.get('accel_chip').strip())]
-        else:
-            self.accel_chip_names = [
-                ('x', config.get('accel_chip_x').strip()),
-                ('y', config.get('accel_chip_y').strip())]
-            if self.accel_chip_names[0][1] == self.accel_chip_names[1][1]:
-                self.accel_chip_names = [('xy', self.accel_chip_names[0][1])]
+        #if not config.get('accel_chip_x', None):
+        #    self.accel_chip_names = [('xy', config.get('accel_chip').strip())]
+        #else:
+        #    self.accel_chip_names = [
+        #        ('x', config.get('accel_chip_x').strip()),
+        #        ('y', config.get('accel_chip_y').strip())]
+        #    if self.accel_chip_names[0][1] == self.accel_chip_names[1][1]:
+        #        self.accel_chip_names = [('xy', self.accel_chip_names[0][1])]
         self.max_smoothing = config.getfloat('max_smoothing', None, minval=0.05)
 
         self.gcode = self.printer.lookup_object('gcode')
-        self.gcode.register_command("MEASURE_AXES_NOISE",
+        self.gcode.register_command("MEASURE_AXES_NOISE2",
                                     self.cmd_MEASURE_AXES_NOISE,
                                     desc=self.cmd_MEASURE_AXES_NOISE_help)
-        self.gcode.register_command("TEST_RESONANCES",
+        self.gcode.register_command("TEST_RESONANCES2",
                                     self.cmd_TEST_RESONANCES,
                                     desc=self.cmd_TEST_RESONANCES_help)
-        self.gcode.register_command("SHAPER_CALIBRATE",
+        self.gcode.register_command("SHAPER_CALIBRATE2",
                                     self.cmd_SHAPER_CALIBRATE,
                                     desc=self.cmd_SHAPER_CALIBRATE_help)
         self.printer.register_event_handler("klippy:connect", self.connect)

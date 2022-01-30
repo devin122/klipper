@@ -131,9 +131,7 @@ class ResonanceTester2:
         self.max_smoothing = config.getfloat('max_smoothing', None, minval=0.05)
 
         self.gcode = self.printer.lookup_object('gcode')
-        self.gcode.register_command("MEASURE_AXES_NOISE2",
-                                    self.cmd_MEASURE_AXES_NOISE,
-                                    desc=self.cmd_MEASURE_AXES_NOISE_help)
+
         self.gcode.register_command("TEST_RESONANCES2",
                                     self.cmd_TEST_RESONANCES,
                                     desc=self.cmd_TEST_RESONANCES_help)
@@ -185,35 +183,10 @@ class ResonanceTester2:
     def cmd_TEST_RESONANCES(self, gcmd):
         # Parse parameters
         axis = _parse_axis(gcmd, gcmd.get("AXIS").lower())
-
-        outputs = gcmd.get("OUTPUT", "resonances").lower().split(',')
-        for output in outputs:
-            if output not in ['resonances', 'raw_data']:
-                raise gcmd.error("Unsupported output '%s', only 'resonances'"
-                                 " and 'raw_data' are supported" % (output,))
-        if not outputs:
-            raise gcmd.error("No output specified, at least one of 'resonances'"
-                             " or 'raw_data' must be set in OUTPUT parameter")
-        name_suffix = gcmd.get("NAME", time.strftime("%Y%m%d_%H%M%S"))
-        if not self.is_valid_name_suffix(name_suffix):
-            raise gcmd.error("Invalid NAME parameter")
-        csv_output = 'resonances' in outputs
-        raw_output = 'raw_data' in outputs
-
-        # Setup calculation of resonances
-        if csv_output:
-            helper = shaper_calibrate.ShaperCalibrate(self.printer)
-        else:
-            helper = None
-
         data = self._run_test(
-                gcmd, [axis], helper,
-                raw_name_suffix=name_suffix if raw_output else None)[axis]
-        if csv_output:
-            csv_name = self.save_calibration_data('resonances', name_suffix,
-                                                  helper, axis, data)
-            gcmd.respond_info(
-                    "Resonances data written to %s file" % (csv_name,))
+                gcmd, [axis], None,
+                raw_name_suffix=None)[axis]
+        gcmd.respond_info("Done")
     cmd_SHAPER_CALIBRATE_help = (
         "Simular to TEST_RESONANCES but suggest input shaper config")
     def cmd_SHAPER_CALIBRATE(self, gcmd):
@@ -261,27 +234,6 @@ class ResonanceTester2:
         gcmd.respond_info(
             "The SAVE_CONFIG command will update the printer config file\n"
             "with these parameters and restart the printer.")
-    cmd_MEASURE_AXES_NOISE_help = (
-        "Measures noise of all enabled accelerometer chips")
-    def cmd_MEASURE_AXES_NOISE(self, gcmd):
-        meas_time = gcmd.get_float("MEAS_TIME", 2.)
-        raw_values = [(chip_axis, chip.start_internal_client())
-                      for chip_axis, chip in self.accel_chips]
-        self.printer.lookup_object('toolhead').dwell(meas_time)
-        for chip_axis, aclient in raw_values:
-            aclient.finish_measurements()
-        helper = shaper_calibrate.ShaperCalibrate(self.printer)
-        for chip_axis, aclient in raw_values:
-            if not aclient.has_valid_samples():
-                raise gcmd.error(
-                        "%s-axis accelerometer measured no data" % (chip_axis,))
-            data = helper.process_accelerometer_data(aclient)
-            vx = data.psd_x.mean()
-            vy = data.psd_y.mean()
-            vz = data.psd_z.mean()
-            gcmd.respond_info("Axes noise for %s-axis accelerometer: "
-                              "%.6f (x), %.6f (y), %.6f (z)" % (
-                                  chip_axis, vx, vy, vz))
 
     def is_valid_name_suffix(self, name_suffix):
         return name_suffix.replace('-', '').replace('_', '').isalnum()
